@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Ticket Room</title>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f7fb;
+      font-family: Arial, sans-serif;
+      color: #111827;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 22px;
+      padding: 26px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .text {
+      color: #6b7280;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+
+    .loading {
+      margin: 20px auto;
+      width: 42px;
+      height: 42px;
+      border: 4px solid #dbeafe;
+      border-top: 4px solid #16a34a;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error {
+      color: #b91c1c;
+      margin-top: 12px;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <div class="title">กำลังเปิด E-Ticket Room</div>
+    <div class="loading"></div>
+    <div class="text">
+      กรุณารอสักครู่<br>
+      ระบบกำลังตรวจสอบบัตรห้องพักของคุณ
+    </div>
+    <div id="errorText" class="error"></div>
+  </div>
+
+  <script>
+    const LIFF_ID = '2010068818-KOos0knu';
+
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyuIYH31jIBoJ7FdIyagfVU2KcId8Y6nRks89EbXSemH8RhqCVuckmcoydr2Na9hv8IOA/exec';
+
+    async function main() {
+      try {
+        await liff.init({
+          liffId: LIFF_ID
+        });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+
+        const lineUserId = profile && profile.userId ? profile.userId : '';
+
+        if (!lineUserId) {
+          document.getElementById('errorText').innerHTML =
+            'ไม่สามารถอ่านข้อมูล LINE ได้<br>กรุณาปิดหน้านี้แล้วเปิดใหม่จาก LINE OA';
+          return;
+        }
+
+        const targetUrl =
+          WEB_APP_URL +
+          '?page=myticket' +
+          '&type=room' +
+          '&lineUserId=' + encodeURIComponent(lineUserId);
+
+        window.location.href = targetUrl;
+
+      } catch (err) {
+        document.getElementById('errorText').innerHTML =
+          'เปิด E-Ticket Room ไม่สำเร็จ<br>กรุณาปิดหน้านี้แล้วลองใหม่อีกครั้ง';
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
